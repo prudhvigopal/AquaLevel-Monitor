@@ -1,0 +1,64 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(7, 8, 5, 4, 3, 2);
+
+// Define sensor and LED pins
+const int trigPin = 9;
+const int echoPin = 10;
+const int ledPin = 13;
+
+// Variables for distance calculation
+long duration;
+int distance;
+int maxDistance = 20; // Set the max distance to consider the tank full (in cm)
+int mediumThreshold = 10; // Set the medium level threshold (in cm)
+
+void setup() {
+  // Set up the LCD's number of columns and rows
+  lcd.begin(16, 2);
+
+  // Set up sensor and LED pins
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT);
+
+  // Print a message to the LCD
+  lcd.print("Javeria's Water Tank");
+}
+
+void loop() {
+  // Clear the trigger pin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  // Set the trigger pin high for 10 microseconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the echo pin, duration is the time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate the distance in cm
+  distance = duration * 0.034 / 2;
+
+  // Clear the previous display
+  lcd.setCursor(0, 1);
+  lcd.print("                "); // Clear previous reading
+  lcd.setCursor(0, 1);
+
+  // Display the water level status
+  if (distance <= maxDistance) {
+    lcd.print("High");
+    digitalWrite(ledPin, HIGH); // Turn on the LED when tank is full
+  } else if (distance <= mediumThreshold) {
+    lcd.print("Medium");
+    digitalWrite(ledPin, LOW); // Turn off the LED
+  } else {
+    lcd.print("Low");
+    digitalWrite(ledPin, LOW); // Turn off the LED
+  }
+
+  // Wait for a second before taking another reading
+  delay(1000);
+}
